@@ -1,0 +1,80 @@
+---
+title: "Data processing"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries and helpers, include=FALSE}
+
+library(dplyr)
+library(googlesheets4)
+library(ggplot2)
+library(tidyr)
+library(readr)
+# library(dm)
+source("helper/data_clean.R")
+
+```
+
+# 0. Loading raw data
+
+Raw data is loaded from googlesheets. The console will require you to authenticate. After loading we change column names to facilitate data wrangling using 
+
+```{r}
+
+raw_data <- read_sheet("https://docs.google.com/spreadsheets/d/13whhEfm7JUvHhCvMjuu9FNT3_Us9ZQKBzG0Eo2qzhMI/edit?resourcekey=&gid=986904780#gid=986904780")
+
+
+
+```
+
+
+# 1. Clean column names and fix weird columns
+
+```{r}
+
+clean_data <- clean_colnames(raw_data)[, -c(43:44)]
+
+# colnames(clean_data)
+
+# glimpse(clean_data)
+
+# Fix variables combining text and numbers (Want only number)
+
+clean_data = clean_data %>% 
+  mutate(videogame_hours_week = parse_number(as.character(videogame_hours_week))) %>% 
+  mutate(videogame_years_exp = parse_number(as.character(videogame_years_exp)))
+
+```
+# 2. Calculate social skills questionnaire scores
+
+```{r}
+
+processed_data = clean_data %>% 
+  rowwise() %>% 
+  mutate(CHS_U_academic_score = sum(c_across(contains("CHS_U_academic")), na.rm = TRUE),
+         CHS_U_opposition_score = sum(c_across(contains("CHS_U_opposition")), na.rm = TRUE),
+         CHS_U_empathetic_score = sum(c_across(contains("CHS_U_empathetic")), na.rm = TRUE),
+         CHS_U_affective_score = sum(c_across(contains("CHS_U_affective")), na.rm = TRUE),
+         CHS_U_conversation_score = sum(c_across(contains("CHS_U_conversation")), na.rm = TRUE)) %>% 
+  ungroup()
+
+
+```
+
+
+# 3. Save data
+
+```{r}
+
+write.csv(processed_data, "processed_data_TIF_moreyra.csv", row.names = F)
+
+```
+
+
+
+

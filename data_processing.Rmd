@@ -60,7 +60,11 @@ processed_data = clean_data %>%
          CHS_U_opposition_score = sum(c_across(contains("CHS_U_opposition")), na.rm = TRUE),
          CHS_U_empathetic_score = sum(c_across(contains("CHS_U_empathetic")), na.rm = TRUE),
          CHS_U_affective_score = sum(c_across(contains("CHS_U_affective")), na.rm = TRUE),
-         CHS_U_conversation_score = sum(c_across(contains("CHS_U_conversation")), na.rm = TRUE)) %>% 
+         CHS_U_conversation_score = sum(c_across(contains("CHS_U_conversation")), na.rm = TRUE),
+         CHS_U_total_score = sum(CHS_U_academic_score, CHS_U_opposition_score,
+                                 CHS_U_empathetic_score, CHS_U_affective_score,
+                                 CHS_U_conversation_score)
+         ) %>% 
   ungroup()
 
 

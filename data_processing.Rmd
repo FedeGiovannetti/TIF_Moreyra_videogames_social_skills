@@ -47,7 +47,9 @@ clean_data <- clean_colnames(raw_data)[, -c(43:44)]
 
 clean_data = clean_data %>% 
   mutate(videogame_hours_week = parse_number(as.character(videogame_hours_week))) %>% 
-  mutate(videogame_years_exp = parse_number(as.character(videogame_years_exp)))
+  mutate(videogame_years_exp = parse_number(as.character(videogame_years_exp)))%>% 
+  mutate(videogame_modality_num = parse_number(as.character(videogame_modality)))%>% 
+  mutate(videogame_context_num = parse_number(as.character(videogame_context)))
 
 ```
 # 2. Calculate social skills questionnaire scores

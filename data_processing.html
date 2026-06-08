@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2026-06-04" />
+<meta name="date" content="2026-06-08" />
 
 <title>Data processing</title>
 
@@ -350,7 +350,7 @@ display: none;
 
 
 <h1 class="title toc-ignore">Data processing</h1>
-<h4 class="date">2026-06-04</h4>
+<h4 class="date">2026-06-08</h4>
 
 </div>
 
@@ -370,6 +370,8 @@ wrangling using</p>
 ##   &#39;giovannettipsi@gmail.com&#39;.</code></pre>
 <pre><code>## ✔ Reading from &quot;Sociodemográfico TIF Moreyra (Respuestas)&quot;.</code></pre>
 <pre><code>## ✔ Range &#39;Respuestas de formulario 1&#39;.</code></pre>
+<pre><code>## New names:
+## • `` -&gt; `...47`</code></pre>
 </div>
 <div id="clean-column-names-and-fix-weird-columns" class="section level1">
 <h1>1. Clean column names and fix weird columns</h1>
@@ -383,17 +385,9 @@ wrangling using</p>
 
 clean_data = clean_data %&gt;% 
   mutate(videogame_hours_week = parse_number(as.character(videogame_hours_week))) %&gt;% 
-  mutate(videogame_years_exp = parse_number(as.character(videogame_years_exp)))</code></pre>
-<pre><code>## Warning: There was 1 warning in `mutate()`.
-## ℹ In argument: `videogame_years_exp =
-##   parse_number(as.character(videogame_years_exp))`.
-## Caused by warning:
-## ! 4 parsing failures.
-## row col expected                       actual
-##   4  -- a number desde que tengo memoria     
-##   8  -- a number Desde que tengo uso de razón
-##  12  -- a number Desde chico                 
-##  25  -- a number Toda la vida</code></pre>
+  mutate(videogame_years_exp = parse_number(as.character(videogame_years_exp)))%&gt;% 
+  mutate(videogame_modality_num = parse_number(as.character(videogame_modality)))%&gt;% 
+  mutate(videogame_context_num = parse_number(as.character(videogame_context)))</code></pre>
 </div>
 <div id="calculate-social-skills-questionnaire-scores" class="section level1">
 <h1>2. Calculate social skills questionnaire scores</h1>

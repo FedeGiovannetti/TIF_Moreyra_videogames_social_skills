@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2026-06-08" />
+<meta name="date" content="2026-07-01" />
 
 <title>Data processing</title>
 
@@ -350,7 +350,7 @@ display: none;
 
 
 <h1 class="title toc-ignore">Data processing</h1>
-<h4 class="date">2026-06-08</h4>
+<h4 class="date">2026-07-01</h4>
 
 </div>
 
@@ -389,8 +389,17 @@ clean_data = clean_data %&gt;%
   mutate(videogame_modality_num = parse_number(as.character(videogame_modality)))%&gt;% 
   mutate(videogame_context_num = parse_number(as.character(videogame_context)))</code></pre>
 </div>
+<div id="flag-rows-with-weird-responses" class="section level1">
+<h1>2. Flag rows with weird responses</h1>
+<pre class="r"><code>clean_data = clean_data %&gt;% 
+  mutate(validation = case_when(
+    Edad &gt; 100 ~ FALSE,
+    videogame_hours_week &gt; 168 ~ FALSE,
+    .default = TRUE
+  ))</code></pre>
+</div>
 <div id="calculate-social-skills-questionnaire-scores" class="section level1">
-<h1>2. Calculate social skills questionnaire scores</h1>
+<h1>3. Calculate social skills questionnaire scores</h1>
 <pre class="r"><code>processed_data = clean_data %&gt;% 
   rowwise() %&gt;% 
   mutate(CHS_U_academic_score = sum(c_across(contains(&quot;CHS_U_academic&quot;)), na.rm = TRUE),
@@ -405,8 +414,8 @@ clean_data = clean_data %&gt;%
   ungroup()</code></pre>
 </div>
 <div id="save-data" class="section level1">
-<h1>3. Save data</h1>
-<pre class="r"><code>write.csv(processed_data, &quot;processed_data_TIF_moreyra.csv&quot;, row.names = F)</code></pre>
+<h1>4. Save data</h1>
+<pre class="r"><code>write.csv(processed_data, &quot;pre_processed_data_TIF_moreyra.csv&quot;, row.names = F)</code></pre>
 </div>
 
 

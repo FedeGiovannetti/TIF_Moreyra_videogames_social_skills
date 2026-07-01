@@ -52,7 +52,27 @@ clean_data = clean_data %>%
   mutate(videogame_context_num = parse_number(as.character(videogame_context)))
 
 ```
-# 2. Calculate social skills questionnaire scores
+
+# 2. Flag rows with weird responses
+
+```{r}
+
+clean_data = clean_data %>% 
+  mutate(validation = case_when(
+    Edad > 100 ~ FALSE,
+    videogame_hours_week > 168 ~ FALSE,
+    .default = TRUE
+  ))
+
+
+
+
+
+```
+
+
+
+# 3. Calculate social skills questionnaire scores
 
 ```{r}
 
@@ -73,11 +93,11 @@ processed_data = clean_data %>%
 ```
 
 
-# 3. Save data
+# 4. Save data
 
 ```{r}
 
-write.csv(processed_data, "processed_data_TIF_moreyra.csv", row.names = F)
+write.csv(processed_data, "pre_processed_data_TIF_moreyra.csv", row.names = F)
 
 ```
 

@@ -1,0 +1,111 @@
+---
+title: "Data processing"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries and helpers, include=FALSE}
+
+library(dplyr)
+library(googlesheets4)
+library(ggplot2)
+library(tidyr)
+library(readr)
+# library(dm)
+library(stringr)
+source("helper/data_clean.R")
+
+```
+
+# 0. Loading pre-processed data
+
+Pre-processed data is read from 'pre_processed_data_TIF_moreyra.csv' which was created with the code in 'data_pre_processing.Rmd'.
+
+```{r}
+
+pre_processed_data <- read.csv("pre_processed_data_TIF_moreyra.csv") %>% 
+  filter(validation == TRUE) ## Select only data with TRUE in validation column
+
+```
+
+
+# 1. Filter variables for reject criteria
+
+## 1.1. Age
+
+Explore age distribution
+
+```{r}
+
+pre_processed_data %>% 
+  ggplot(aes(x = Edad))+
+  geom_histogram(color = "white", binwidth = 1)+
+  geom_vline(xintercept = 20, )+
+  geom_vline(xintercept = 25)
+
+
+```
+Filter by criteria
+
+```{r}
+
+lower_age = 18
+higher_age = 26
+
+pre_processed_data %>% 
+  summarise(lower_age = sum(Edad < lower_age),
+            higher_age = sum(Edad > higher_age))
+
+
+age_filtered_data <- pre_processed_data %>% 
+  filter(Edad >= lower_age,
+         Edad <= higher_age)
+
+```
+## Psychiatric or neurologic dx
+
+```{r}
+
+dx_list <- c("depresion",
+             "depresión",
+             "tdah", "tda", "tdh",
+             "ansiedad",
+             "trastorno",
+             "tea", "autismo",
+             "asperger", "sindrome",
+             "retraso",
+             "consumo")
+
+dx_list <-  paste(dx_list, collapse = "|")
+
+age_filtered_dx_data <- age_filtered_data %>% 
+  filter(!str_detect(dx_info, regex(dx_list, ignore_case = TRUE)) | is.na(dx_info))
+
+age_filtered_data %>% 
+  summarise(with_dx = sum(!str_detect(dx_info, regex(dx_list, ignore_case = TRUE)), na.rm = T))
+
+
+
+```
+
+## Residence
+
+
+
+
+
+# 4. Save data
+
+```{r}
+
+write.csv(age_filtered_dx_data, "processed_data_TIF_moreyra.csv", row.names = F)
+
+```
+
+
+
+

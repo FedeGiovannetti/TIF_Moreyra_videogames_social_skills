@@ -1,5 +1,5 @@
 ---
-title: "Data processing"
+title: "Data pre-processing"
 output: html_document
 date: "`r Sys.Date()`"
 ---
@@ -61,6 +61,7 @@ clean_data = clean_data %>%
   mutate(validation = case_when(
     Edad > 100 ~ FALSE,
     videogame_hours_week > 168 ~ FALSE,
+    dx_info == "Soy extremadamente lindo" ~ FALSE,
     .default = TRUE
   ))
 

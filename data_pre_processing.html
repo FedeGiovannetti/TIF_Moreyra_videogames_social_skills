@@ -12,7 +12,7 @@
 
 <meta name="date" content="2026-07-01" />
 
-<title>Data processing</title>
+<title>Data pre-processing</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -349,7 +349,7 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Data processing</h1>
+<h1 class="title toc-ignore">Data pre-processing</h1>
 <h4 class="date">2026-07-01</h4>
 
 </div>
@@ -395,6 +395,7 @@ clean_data = clean_data %&gt;%
   mutate(validation = case_when(
     Edad &gt; 100 ~ FALSE,
     videogame_hours_week &gt; 168 ~ FALSE,
+    dx_info == &quot;Soy extremadamente lindo&quot; ~ FALSE,
     .default = TRUE
   ))</code></pre>
 </div>

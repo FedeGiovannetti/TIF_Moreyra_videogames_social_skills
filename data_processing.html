@@ -12,7 +12,7 @@
 
 <meta name="date" content="2026-07-02" />
 
-<title>Data pre-processing</title>
+<title>Data processing</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -349,75 +349,189 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Data pre-processing</h1>
+<h1 class="title toc-ignore">Data processing</h1>
 <h4 class="date">2026-07-02</h4>
 
 </div>
 
 
-<div id="loading-raw-data" class="section level1">
-<h1>0. Loading raw data</h1>
-<p>Raw data is loaded from googlesheets. The console will require you to
-authenticate. After loading we change column names to facilitate data
-wrangling using</p>
-<pre class="r"><code>raw_data &lt;- read_sheet(&quot;https://docs.google.com/spreadsheets/d/13whhEfm7JUvHhCvMjuu9FNT3_Us9ZQKBzG0Eo2qzhMI/edit?resourcekey=&amp;gid=986904780#gid=986904780&quot;)</code></pre>
-<pre><code>## ! Using an auto-discovered, cached token.</code></pre>
-<pre><code>##   To suppress this message, modify your code or options to clearly consent to
-##   the use of a cached token.</code></pre>
-<pre><code>##   See gargle&#39;s &quot;Non-interactive auth&quot; vignette for more details:</code></pre>
-<pre><code>##   &lt;https://gargle.r-lib.org/articles/non-interactive-auth.html&gt;</code></pre>
-<pre><code>## ℹ The googlesheets4 package is using a cached token for
-##   &#39;giovannettipsi@gmail.com&#39;.</code></pre>
-<pre><code>## Auto-refreshing stale OAuth token.</code></pre>
-<pre><code>## ✔ Reading from &quot;Sociodemográfico TIF Moreyra (Respuestas)&quot;.</code></pre>
-<pre><code>## ✔ Range &#39;Respuestas de formulario 1&#39;.</code></pre>
-<pre><code>## New names:
-## • `` -&gt; `...47`</code></pre>
+<div id="loading-pre-processed-data" class="section level1">
+<h1>0. Loading pre-processed data</h1>
+<p>Pre-processed data is read from ‘pre_processed_data_TIF_moreyra.csv’
+which was created with the code in ‘data_pre_processing.Rmd’.</p>
+<pre class="r"><code>pre_processed_data &lt;- read.csv(&quot;pre_processed_data_TIF_moreyra.csv&quot;) %&gt;% 
+  filter(validation == TRUE) ## Select only data with TRUE in validation column</code></pre>
 </div>
-<div id="clean-column-names-and-fix-weird-columns" class="section level1">
-<h1>1. Clean column names and fix weird columns</h1>
-<pre class="r"><code>clean_data &lt;- clean_colnames(raw_data)[, -c(43:44)]
+<div id="filter-variables-for-reject-criteria" class="section level1">
+<h1>1. Filter variables for reject criteria</h1>
+<div id="age" class="section level2">
+<h2>1.1. Age</h2>
+<p>Explore age distribution</p>
+<pre class="r"><code>pre_processed_data %&gt;% 
+  ggplot(aes(x = Edad))+
+  geom_histogram(color = &quot;white&quot;, binwidth = 1)+
+  geom_vline(xintercept = 20, )+
+  geom_vline(xintercept = 25)</code></pre>
+<p><img role="img" aria-label src="data:image/png;base64,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HUGgVVhtG1SRSCfQEQRahdW2QRWJdAIdQaBVWG0bVJFIJ9ARBFqF1bZBFYl0Ah1BoFVYbRtUkUgn0BEEWoXVtkEViXQCHUGgVVhtG1SRSCfQEQRahdW2QRWJdAIdQaBVWG0bVJFIJ9ARBFqF1bZBFYl0Ah1BoFVYbRtUkUgn0BEEWoXVtkEViXQCHUGgVVhtG1SRSCfQEQRahdW2QRWJdAIdQaBVWG0bVJFIJ9ARBFqF1bZBFYl0Ah1BoFVYbRtUkUgn0BEEWoXVtkEViXQCHUGgVVhtG1SRSCfQEQRahdW2QRWJdAIdQaBVWG0bVJFIJ9ARBFqF1bZBFYl0Ah1BoFVYbRtUkUgn0BEEWoXVtkEViXQCHUGgVVhtG1SRSCfQEQRahdW2QRWJdAIdQaBVWG0bVJFIJ9ARBFqF1bZBFYl0Ah1BoFVYbRtUkUgn0BEEWoXVtkEViXQCHUGgVVhtG1SRSCfQEQRahdW2QRWJdAIdQaBVWG0bVJFIJ9ARBFqF1bZBFYl0Ah1BoFVYbRtUkUgn0BEEWoXVtkEViXQCHUGgVVhtG1SRSCfQEQRahdW2QRWJdAIdQaBVWG0bVJFIJ9ARBFqF1bZBFYl0Ah1BoFVYbRtUkUgn0BEEWoXVtkEViXQCHUGgVVhtG1SRSCfQEQRahdW2QRWJdAIdQaBVWG0bVJFIJ9ARBFqF1bZBFYl0Ah1BoFVYbRtUkUgn0BEEWoXVtkEViXQCHUGgVVhtG1SRSCfQEQRahdW2QRWJdAIdQaBVWG0bVJFIJ9ARBFqF1bZBFYl0Ah1BoFVYbRtUkUgn0BEEWoXVtkEViXQCHUGgVVhtG1SRSCfQEQRahdW2QRWJdAIdQaBVWG0bVJFIJ9ARBFqF1bZBFYl0Ah1BoFVYbRtUkUgn0BEEWoXVtkEViXQCHUGgVVhtG1SRSCfQEQRahdW2QRWJdAIdQaBVWG0bVJFIJ9ARBFqF1bZBFYl0Ah1BoFVYbRtUkUgn0BEEWoXVtkEViXQCHUGgVVhtG1SRSCfQEQRahdW2QRWJdAIdQaBVWG0bVJFIJ9ARBFqF1bZBFYl0Ah1BoFVYbRtUkUgn0BEEWoXVtkEViXQCHUGgVVhtG1SRSCfQEQRahdW2QRWJdAIdQaBVWG0bVJFIJ9ARBFqF1bZBFYl0Ah1BoFVYbRtUkUgn0BEEWoXVtkEViXQCHUGg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" alt width="672" />
+Filter by criteria</p>
+<pre class="r"><code>lower_age = 18
+higher_age = 26
 
-# colnames(clean_data)
-
-# glimpse(clean_data)
-
-# Fix variables combining text and numbers (Want only number)
-
-clean_data = clean_data %&gt;% 
-  mutate(videogame_hours_week = parse_number(as.character(videogame_hours_week))) %&gt;% 
-  mutate(videogame_years_exp = parse_number(as.character(videogame_years_exp)))%&gt;% 
-  mutate(videogame_modality_num = parse_number(as.character(videogame_modality)))%&gt;% 
-  mutate(videogame_context_num = parse_number(as.character(videogame_context)))</code></pre>
+pre_processed_data %&gt;% 
+  summarise(lower_age = sum(Edad &lt; lower_age),
+            higher_age = sum(Edad &gt; higher_age))</code></pre>
+<pre><code>##   lower_age higher_age
+## 1         1         38</code></pre>
+<pre class="r"><code>age_filtered_data &lt;- pre_processed_data %&gt;% 
+  filter(Edad &gt;= lower_age,
+         Edad &lt;= higher_age)</code></pre>
 </div>
-<div id="flag-rows-with-weird-responses" class="section level1">
-<h1>2. Flag rows with weird responses</h1>
-<pre class="r"><code>clean_data = clean_data %&gt;% 
-  mutate(validation = case_when(
-    Edad &gt; 100 ~ FALSE,
-    videogame_hours_week &gt; 168 ~ FALSE,
-    dx_info == &quot;Soy extremadamente lindo&quot; ~ FALSE,
-    .default = TRUE
-  ))</code></pre>
+<div id="psychiatric-or-neurologic-dx" class="section level2">
+<h2>Psychiatric or neurologic dx</h2>
+<pre class="r"><code>dx_list &lt;- c(&quot;depresion&quot;,
+             &quot;depresión&quot;,
+             &quot;tdah&quot;, &quot;tda&quot;, &quot;tdh&quot;,
+             &quot;ansiedad&quot;,
+             &quot;trastorno&quot;,
+             &quot;tea&quot;, &quot;autismo&quot;,
+             &quot;asperger&quot;, &quot;sindrome&quot;,
+             &quot;retraso&quot;,
+             &quot;consumo&quot;)
+
+dx_list &lt;-  paste(dx_list, collapse = &quot;|&quot;)
+
+age_filtered_dx_data &lt;- age_filtered_data %&gt;% 
+  filter(!str_detect(dx_info, regex(dx_list, ignore_case = TRUE)) | is.na(dx_info))
+
+age_filtered_data %&gt;% 
+  summarise(with_dx = sum(!str_detect(dx_info, regex(dx_list, ignore_case = TRUE)), na.rm = T))</code></pre>
+<pre><code>##   with_dx
+## 1      10</code></pre>
 </div>
-<div id="calculate-social-skills-questionnaire-scores" class="section level1">
-<h1>3. Calculate social skills questionnaire scores</h1>
-<pre class="r"><code>processed_data = clean_data %&gt;% 
-  rowwise() %&gt;% 
-  mutate(CHS_U_academic_score = sum(c_across(contains(&quot;CHS_U_academic&quot;)), na.rm = TRUE),
-         CHS_U_opposition_score = sum(c_across(contains(&quot;CHS_U_opposition&quot;)), na.rm = TRUE),
-         CHS_U_empathetic_score = sum(c_across(contains(&quot;CHS_U_empathetic&quot;)), na.rm = TRUE),
-         CHS_U_affective_score = sum(c_across(contains(&quot;CHS_U_affective&quot;)), na.rm = TRUE),
-         CHS_U_conversation_score = sum(c_across(contains(&quot;CHS_U_conversation&quot;)), na.rm = TRUE),
-         CHS_U_total_score = sum(CHS_U_academic_score, CHS_U_opposition_score,
-                                 CHS_U_empathetic_score, CHS_U_affective_score,
-                                 CHS_U_conversation_score)
-         ) %&gt;% 
-  ungroup()</code></pre>
+<div id="residence" class="section level2">
+<h2>Residence</h2>
+<pre class="r"><code>age_filtered_dx_data$birth_place</code></pre>
+<pre><code>##   [1] &quot;Buenos Aires, Verónica&quot;                  
+##   [2] &quot;Chubut, Trelew&quot;                          
+##   [3] &quot;Chubut. Comodoro Rivadavia&quot;              
+##   [4] &quot;Buenos Aires, San Isidro&quot;                
+##   [5] &quot;Chubut, Trelew&quot;                          
+##   [6] &quot;CABA, CABA&quot;                              
+##   [7] &quot;Chubut, Trelew&quot;                          
+##   [8] &quot;Buenos Aires, Pilar&quot;                     
+##   [9] &quot;Chubut, Trelew&quot;                          
+##  [10] &quot;Buenos Aires, Vicente Lopez&quot;             
+##  [11] &quot;Buenos Aires, Capital Federal&quot;           
+##  [12] &quot;CABA, CABA&quot;                              
+##  [13] &quot;Formosa&quot;                                 
+##  [14] &quot;Buenos Aires, Martínez&quot;                  
+##  [15] &quot;Chubut, Garayalde&quot;                       
+##  [16] &quot;CABA, CABA&quot;                              
+##  [17] &quot;Trelew, Chubut&quot;                          
+##  [18] &quot;Provincia de Buenos Aires, Bahia Blanca&quot; 
+##  [19] &quot;CABA, CABA&quot;                              
+##  [20] &quot;Chubut, Trelew.&quot;                         
+##  [21] &quot;Formosa, Ciudad de Formosa&quot;              
+##  [22] &quot;Chubut, Trelew&quot;                          
+##  [23] &quot;Corrientes, Corrientes&quot;                  
+##  [24] &quot;Chubut, Trelew&quot;                          
+##  [25] &quot;Buenos Aires, Quilmes&quot;                   
+##  [26] &quot;Chubut, Trelew&quot;                          
+##  [27] &quot;Buenos Aires, Capital Federal&quot;           
+##  [28] &quot;Córdoba, Porteña&quot;                        
+##  [29] &quot;CABA, CABA&quot;                              
+##  [30] &quot;Buenos Aires, Capital Federal&quot;           
+##  [31] &quot;Neuquén, Neuquén&quot;                        
+##  [32] &quot;Buenos Aires, Lomas de Zamora&quot;           
+##  [33] &quot;CABA, CABA&quot;                              
+##  [34] &quot;CABA, CABA&quot;                              
+##  [35] &quot;Chubut, Trelew&quot;                          
+##  [36] &quot;CABA, CABA&quot;                              
+##  [37] &quot;Neuquén, Zapala&quot;                         
+##  [38] &quot;Chubut, Trelew&quot;                          
+##  [39] &quot;Japón&quot;                                   
+##  [40] &quot;Buenos Aires, Quilmes&quot;                   
+##  [41] &quot;Chubut, Trelew&quot;                          
+##  [42] &quot;Santiago del estero, Urutaú&quot;             
+##  [43] &quot;CABA, CABA&quot;                              
+##  [44] &quot;CABA, CABA&quot;                              
+##  [45] &quot;Chubut, Trelew&quot;                          
+##  [46] &quot;Chubut, Trelew&quot;                          
+##  [47] &quot;Buenos Aires, Ezeiza&quot;                    
+##  [48] &quot;CABA, CABA&quot;                              
+##  [49] &quot;San Juan, San Juan&quot;                      
+##  [50] &quot;Buenos Aires, San Isidro&quot;                
+##  [51] &quot;Cordoba, Santa Rosa de Calamuchita&quot;      
+##  [52] &quot;Chubut, Esquel&quot;                          
+##  [53] &quot;Buenos Aires, Merlo&quot;                     
+##  [54] &quot;Chubut, Trelew&quot;                          
+##  [55] &quot;CABA, CABA&quot;                              
+##  [56] &quot;CABA, CABA&quot;                              
+##  [57] &quot;Miami Florida, naturalizada Argentina&quot;   
+##  [58] &quot;CABA, CABA&quot;                              
+##  [59] &quot;CABA, CABA&quot;                              
+##  [60] &quot;CABA, CABA&quot;                              
+##  [61] &quot;Chubut, Trelew&quot;                          
+##  [62] &quot;CABA, CABA&quot;                              
+##  [63] &quot;Chubut, Trelew&quot;                          
+##  [64] &quot;Buenos Aires, merlo&quot;                     
+##  [65] &quot;Santiago del Estero, Santiago del Estero&quot;
+##  [66] &quot;CABA, CABA&quot;                              
+##  [67] &quot;Buenos Aire, José C. Paz.&quot;               
+##  [68] &quot;Neuquén, Neuquén&quot;                        
+##  [69] &quot;Buenos Aires, Capital Federal&quot;           
+##  [70] &quot;CABA, CABA&quot;                              
+##  [71] &quot;Buenos Aires, Lanús&quot;                     
+##  [72] &quot;CABA, CABA&quot;                              
+##  [73] &quot;Buenos Aires, Remedios de Escalada&quot;      
+##  [74] &quot;Buenos Aires, Temperley&quot;                 
+##  [75] &quot;Buenos Aires, Burzaco&quot;                   
+##  [76] &quot;Chubut, Trelew&quot;                          
+##  [77] &quot;Esperanza, Santa Fe&quot;                     
+##  [78] &quot;CABA, CABA&quot;                              
+##  [79] &quot;CABA, CABA&quot;                              
+##  [80] &quot;CABA, CABA&quot;                              
+##  [81] &quot;Buenas Aires, Adrogue&quot;                   
+##  [82] &quot;CABA, CABA&quot;                              
+##  [83] &quot;CABA, CABA&quot;                              
+##  [84] &quot;Salta, Salta&quot;                            
+##  [85] &quot;Tucuman, San Miguel de Tucuman&quot;          
+##  [86] &quot;Tucumán, San Miguel de Tucumán&quot;          
+##  [87] &quot;CABA, CABA&quot;                              
+##  [88] &quot;Chubut, Trelew&quot;                          
+##  [89] &quot;Chubut, Trelew&quot;                          
+##  [90] &quot;Colombia, bogota&quot;                        
+##  [91] &quot;yucatan,mexico&quot;                          
+##  [92] &quot;Buenos Aires, Francisco Álvarez&quot;         
+##  [93] &quot;Buenos Aires, Tres de Febrero&quot;           
+##  [94] &quot;Buenos Aires, Moreno&quot;                    
+##  [95] &quot;Grand Bourg&quot;                             
+##  [96] &quot;CABA, CABA&quot;                              
+##  [97] &quot;CABA, CABA&quot;                              
+##  [98] &quot;Buenos Aires, Lanús&quot;                     
+##  [99] &quot;Resistencia, Chaco&quot;                      
+## [100] &quot;Buenos Aires, Temperley&quot;                 
+## [101] &quot;CABA, CABA&quot;                              
+## [102] &quot;CABA, CABA&quot;                              
+## [103] &quot;CABA, CABA&quot;                              
+## [104] &quot;CABA, CABA&quot;                              
+## [105] &quot;Chubut, Trelew&quot;                          
+## [106] &quot;Chubut, rawson&quot;                          
+## [107] &quot;CABA, CABA&quot;                              
+## [108] &quot;Ciudad&quot;                                  
+## [109] &quot;CABA, CABA&quot;                              
+## [110] &quot;CABA, Saavedra&quot;                          
+## [111] &quot;Tucumán, San Miguel de Tucumán&quot;          
+## [112] &quot;Tucumán, San Miguel de Tucumán&quot;          
+## [113] &quot;Buenos Aires San Martin&quot;                 
+## [114] &quot;Tucumán, San miguel&quot;                     
+## [115] &quot;CABA, CABA&quot;                              
+## [116] &quot;Chubut, Comodoro Rivadavia&quot;</code></pre>
+</div>
 </div>
 <div id="save-data" class="section level1">
 <h1>4. Save data</h1>
-<pre class="r"><code>write.csv(processed_data, &quot;pre_processed_data_TIF_moreyra.csv&quot;, row.names = F)</code></pre>
+<pre class="r"><code>write.csv(age_filtered_dx_data, &quot;processed_data_TIF_moreyra.csv&quot;, row.names = F)</code></pre>
 </div>
 
 

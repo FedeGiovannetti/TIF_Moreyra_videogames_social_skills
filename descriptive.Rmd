@@ -72,11 +72,11 @@ hist(datos$videogame_hours_week)
 
 
 datos %>% 
-  filter(Edad <= 26) %>% 
-  filter(Edad >= 18) %>% 
-  filter(videogame_hours_week < 90) %>% 
-  
-  filter(max_educ_level != "Secundario incompleto") %>% 
+  # filter(Edad <= 26) %>% 
+  # filter(Edad >= 18) %>% 
+  filter(videogame_hours_week < 90) %>%
+  # 
+  # filter(max_educ_level != "Secundario incompleto") %>% 
   ggplot(aes(x = videogame_hours_week, y = CHS_U_conversation_score))+
   geom_point()+
   geom_smooth(method = "lm")
@@ -159,8 +159,6 @@ datos %>%
 
 
 datos %>% 
-    filter(Edad <= 26) %>% 
-  filter(Edad >= 18) %>% 
   
   filter(videogame_hours_week < 90) %>% 
   filter(max_educ_level != "Secundario incompleto") %>% 
@@ -221,20 +219,13 @@ lm(CHS_U_affective_score ~ videogame_hours_week * videogame_modality_num  , data
   summary()
 
 datos %>% 
-    filter(Edad <= 26) %>% 
-  filter(Edad >= 18) %>% 
-  
-  filter(videogame_hours_week < 90) %>% 
-  filter(max_educ_level != "Secundario incompleto") %>% 
-lm(CHS_U_conversation_score ~ videogame_hours_week * videogame_modality_num  , data = .) %>% 
+    filter(videogame_hours_week < 90) %>% 
+  lm(CHS_U_conversation_score ~ videogame_hours_week * videogame_modality_num  , data = .) %>% 
   summary()
 
 
 datos %>% 
-    filter(Edad <= 26) %>% 
-  filter(Edad >= 18) %>% 
-  
-  filter(max_educ_level != "Secundario incompleto") %>% 
+    filter(videogame_hours_week < 90) %>% 
 lm(CHS_U_conversation_score ~ videogame_hours_week * videogame_context_num  , data = .) %>% 
   summary()
 

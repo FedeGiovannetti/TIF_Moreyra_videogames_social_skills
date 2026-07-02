@@ -94,6 +94,12 @@ age_filtered_data %>%
 
 ## Residence
 
+```{r}
+
+age_filtered_dx_data$birth_place
+
+
+```
 
 
 

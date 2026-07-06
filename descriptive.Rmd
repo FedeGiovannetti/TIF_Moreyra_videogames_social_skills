@@ -15,7 +15,6 @@ library(googlesheets4)
 library(ggplot2)
 library(tidyr)
 library(readr)
-# library(dm)
 source("helper/data_clean.R")
 
 ```
@@ -26,11 +25,11 @@ Raw data is loaded from googlesheets. The console will require you to authentica
 
 ```{r}
 
-
 datos <- read.csv("processed_data_TIF_moreyra.csv") %>% 
-  filter(validation == TRUE)
-
-
+  filter(validation == TRUE) %>% 
+  filter(!is.na(Provincia)) %>% 
+  filter(videogame_hours != "No juego") %>% 
+  filter(videogame_hours_week < 90)
 
 ```
 
@@ -50,8 +49,14 @@ Matriz de correlación entre variables numéricas
 
 
 datos$CHS_U_total_score
-datos$videogame_hours_week
+table(datos$videogame_hours)
 table(datos$videogame_modality)
+
+
+
+datos %>% 
+  ggplot(aes(x = videogame_hours, y = videogame_hours_week))+
+  geom_boxplot()
 
 
 ```
@@ -66,89 +71,168 @@ hist(datos$videogame_hours_week)
 
 
 
-
-
 ```{r}
 
 
-datos %>% 
-  # filter(Edad <= 26) %>% 
-  # filter(Edad >= 18) %>% 
-  filter(videogame_hours_week < 90) %>%
-  # 
-  # filter(max_educ_level != "Secundario incompleto") %>% 
-  ggplot(aes(x = videogame_hours_week, y = CHS_U_conversation_score))+
-  geom_point()+
-  geom_smooth(method = "lm")
 
 datos %>% 
-  filter(Edad <= 26) %>% 
-  filter(Edad >= 18) %>% 
-  ggplot(aes(x = videogame_modality_num, y = CHS_U_conversation_score))+
-  geom_point()+
-  geom_smooth(method = "lm")
+  filter(videogame_hours != "No juego") %>% 
+  ggplot(aes(x = videogame_hours, y = CHS_U_total_score))+
+  geom_boxplot()
 
-datos %>% 
-  filter(Edad <= 26) %>% 
-  filter(Edad >= 18) %>% 
-  ggplot(aes(x = videogame_modality_num, y = videogame_hours_week))+
-  geom_point()+
-  geom_smooth(method = "lm")
 
 
 datos %>% 
-  filter(Edad <= 26) %>% 
-  filter(Edad >= 18) %>% 
-  ggplot(aes(x = videogame_hours_week, y = CHS_U_conversation_score, color = ))+
-  geom_point()+
-  geom_smooth(method = "lm")
-
-datos %>% 
-  filter(Edad <= 26) %>% 
-  filter(Edad >= 18) %>% 
-  ggplot(aes(x = videogame_modality_num, y = CHS_U_conversation_score, color = videogame_hours))+
-  geom_point()+
-  geom_smooth(method = "lm")
+  filter(videogame_hours != "No juego") %>% 
+  ggplot(aes(x = videogame_hours, y = CHS_U_academic_score))+
+  geom_boxplot()
 
 
 datos %>% 
-  filter(Edad <= 26) %>% 
-  filter(Edad >= 18) %>% 
-  filter(videogame_modality_num <= 3) %>% 
-  View()
-  ggplot(aes(x = videogame_hours_week, y = CHS_U_conversation_score))+
-  geom_point()+
-  geom_smooth(method = "lm")
+  filter(videogame_hours != "No juego") %>% 
+  ggplot(aes(x = videogame_hours, y = CHS_U_opposition_score))+
+  geom_boxplot()
+
 
 datos %>% 
-  filter(Edad <= 26) %>% 
-  filter(Edad >= 18) %>% 
-  ggplot(aes(x = videogame_modality_num, y = CHS_U_conversation_score))+
-  geom_point()+
-  geom_smooth(method = "lm")
+  filter(videogame_hours != "No juego") %>% 
+  ggplot(aes(x = videogame_hours, y = CHS_U_empathetic_score))+
+  geom_boxplot()
 
 datos %>% 
-  filter(Edad <= 26) %>% 
-  filter(Edad >= 18) %>% 
-  filter(max_educ_level != "Secundario incompleto") %>% 
-  ggplot(aes(x = videogame_hours_week, y = CHS_U_total_score))+
-  geom_point()+
-  geom_smooth(method = "lm")+
-  facet_wrap(~ videogame_modality)
+  filter(videogame_hours != "No juego") %>% 
+  ggplot(aes(x = videogame_hours, y = CHS_U_affective_score))+
+  geom_boxplot()
+
 
 datos %>% 
-  filter(Edad <= 26) %>% 
-  filter(Edad >= 18) %>% 
-  
-  filter(videogame_hours_week < 90) %>% 
-  filter(max_educ_level != "Secundario incompleto") %>% 
-  ggplot(aes(x = videogame_hours_week, y = CHS_U_conversation_score))+
-  geom_point()+
-  geom_smooth(method = "lm")+
-  facet_wrap(~ videogame_modality)
+  filter(videogame_hours != "No juego") %>% 
+  ggplot(aes(x = videogame_hours, y = CHS_U_conversation_score))+
+  geom_boxplot()
 
 ```
 
+```{r}
+
+
+datos %>% 
+  ggplot(aes(x = videogame_hours_week, y = CHS_U_total_score))+
+  geom_point()+
+  geom_smooth(method = "lm")
+
+datos %>% 
+  ggplot(aes(x = videogame_hours_week, y = CHS_U_academic_score))+
+  geom_point()+
+  geom_smooth(method = "lm")
+
+
+datos %>% 
+  ggplot(aes(x = videogame_hours_week, y = CHS_U_conversation_score))+
+  geom_point()+
+  geom_smooth(method = "lm")+
+  facet_wrap(~ videogame_modality_num)
+
+
+datos %>% 
+  ggplot(aes(x = Edad, y = CHS_U_conversation_score))+
+  geom_point()+
+  geom_smooth(method = "lm")
+
+datos %>% 
+  ggplot(aes(x = Edad, y = videogame_hours_week))+
+  geom_point()+
+  geom_smooth(method = "lm")
+
+```
+```{r}
+
+
+datos %>%
+  filter(videogame_hours != "No juego") %>% 
+  lm(CHS_U_total_score ~ videogame_hours  , data = .) %>% 
+  summary()
+
+datos %>%
+  filter(videogame_hours != "No juego") %>% 
+  lm(CHS_U_total_score ~ videogame_hours *videogame_context_num  , data = .) %>% 
+  summary()
+
+```
+
+```{r}
+
+## Modelo simple
+
+datos %>%
+  lm(CHS_U_total_score ~ videogame_hours_week  , data = .) %>% 
+  summary()
+
+datos %>%
+  lm(CHS_U_total_score ~ videogame_hours_week* videogame_context_num  , data = .) %>% 
+  summary()
+
+
+
+datos %>%
+  lm(CHS_U_conversation_score ~ videogame_hours_week , data = .) %>% 
+  summary()
+
+datos %>%
+  lm(CHS_U_conversation_score ~ videogame_hours_week*videogame_modality_num , data = .) %>% 
+  summary() 
+
+datos %>%
+  lm(CHS_U_conversation_score ~ videogame_hours_week*videogame_context_num , data = .) %>% 
+  summary()
+
+
+datos %>%
+  lm(CHS_U_conversation_score ~ videogame_context_num , data = .) %>% 
+  summary()
+
+
+
+
+qqnorm(modelo$residuals)
+
+```
+
+Objetivo 1:
+
+CHS_U_total_score ~ videogame_hours_week
+CHS_U_academic_score ~ videogame_hours_week
+CHS_U_opposition_score ~ videogame_hours_week
+CHS_U_empathetic_score ~ videogame_hours_week
+CHS_U_affective_score ~ videogame_hours_week
+CHS_U_conversation_score ~ videogame_hours_week
+
+Objetivo 2:
+
+CHS_U_total_score ~ videogame_hours_week * videogame_modality_num
+CHS_U_academic_score ~ videogame_hours_week * videogame_modality_num
+CHS_U_opposition_score ~ videogame_hours_week * videogame_modality_num
+CHS_U_empathetic_score ~ videogame_hours_week * videogame_modality_num
+CHS_U_affective_score ~ videogame_hours_week * videogame_modality_num
+CHS_U_conversation_score ~ videogame_hours_week * videogame_modality_num
+
+Objetivo 2:
+
+CHS_U_total_score ~ videogame_hours_week * videogame_context_num
+CHS_U_academic_score ~ videogame_hours_week * videogame_context_num
+CHS_U_opposition_score ~ videogame_hours_week * videogame_context_num
+CHS_U_empathetic_score ~ videogame_hours_week * videogame_context_num
+CHS_U_affective_score ~ videogame_hours_week * videogame_context_num
+CHS_U_conversation_score ~ videogame_hours_week * videogame_context_num
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -158,11 +242,8 @@ datos %>%
 
 
 
-datos %>% 
-  
-  filter(videogame_hours_week < 90) %>% 
-  filter(max_educ_level != "Secundario incompleto") %>% 
-lm(CHS_U_total_score ~ videogame_hours_week * videogame_modality_num  , data = .) %>% 
+datos %>%
+  lm(CHS_U_total_score ~ videogame_hours_week * videogame_modality_num  , data = .) %>% 
   summary()
 
 

@@ -15,7 +15,6 @@ library(googlesheets4)
 library(ggplot2)
 library(tidyr)
 library(readr)
-# library(dm)
 library(stringr)
 source("helper/data_clean.R")
 
@@ -44,8 +43,8 @@ Explore age distribution
 pre_processed_data %>% 
   ggplot(aes(x = Edad))+
   geom_histogram(color = "white", binwidth = 1)+
-  geom_vline(xintercept = 20, )+
-  geom_vline(xintercept = 25)
+  geom_vline(xintercept = 18, )+
+  geom_vline(xintercept = 29)
 
 
 ```
@@ -53,7 +52,7 @@ Filter by criteria
 
 ```{r}
 
-lower_age = 18
+lower_age = 19
 higher_age = 26
 
 pre_processed_data %>% 
@@ -71,13 +70,13 @@ age_filtered_data <- pre_processed_data %>%
 ```{r}
 
 dx_list <- c("depresion",
-             "depresión",
+             # "depresión",
              "tdah", "tda", "tdh",
              "ansiedad",
              "trastorno",
              "tea", "autismo",
              "asperger", "sindrome",
-             "retraso",
+             "retraso",   # Troll
              "consumo")
 
 dx_list <-  paste(dx_list, collapse = "|")
@@ -96,19 +95,27 @@ age_filtered_data %>%
 
 ```{r}
 
-age_filtered_dx_data$birth_place
+table(age_filtered_dx_data$Provincia)
 
+age_filtered_dx_place_data <- age_filtered_dx_data %>% 
+  filter(!is.na(Provincia))
+
+sort(age_filtered_dx_place_data$videogame_hours_week)
 
 ```
-
-
 
 
 # 4. Save data
 
 ```{r}
 
-write.csv(age_filtered_dx_data, "processed_data_TIF_moreyra.csv", row.names = F)
+age_filtered_dx_data%>% 
+  filter(validation == TRUE) %>% 
+  filter(!is.na(Provincia)) %>% 
+  filter(videogame_hours != "No juego") %>% 
+  filter(videogame_hours_week < 90)
+
+write.csv("processed_data_TIF_moreyra.csv", row.names = F)
 
 ```
 

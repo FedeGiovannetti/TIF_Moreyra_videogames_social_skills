@@ -25,11 +25,7 @@ Raw data is loaded from googlesheets. The console will require you to authentica
 
 ```{r}
 
-datos <- read.csv("processed_data_TIF_moreyra.csv") %>% 
-  filter(validation == TRUE) %>% 
-  filter(!is.na(Provincia)) %>% 
-  filter(videogame_hours != "No juego") %>% 
-  filter(videogame_hours_week < 90)
+datos <- read.csv("processed_data_TIF_moreyra.csv") 
 
 ```
 
@@ -116,25 +112,25 @@ datos %>%
 
 
 datos %>% 
-  ggplot(aes(x = videogame_hours_week, y = CHS_U_total_score))+
+  ggplot(aes(x = videogame_hours_week, y = CHS_U_acd))+
   geom_point()+
   geom_smooth(method = "lm")
 
 datos %>% 
-  ggplot(aes(x = videogame_hours_week, y = CHS_U_academic_score))+
+  ggplot(aes(x = videogame_hours_week, y = CHS_U_academic_component))+
   geom_point()+
   geom_smooth(method = "lm")
 
 
 datos %>% 
-  ggplot(aes(x = videogame_hours_week, y = CHS_U_conversation_score))+
+  ggplot(aes(x = videogame_hours_week, y = CHS_U_conversation_component))+
   geom_point()+
-  geom_smooth(method = "lm")+
-  facet_wrap(~ videogame_modality_num)
+  geom_smooth(method = "lm")
+  # facet_wrap(~ videogame_modality_num)
 
 
 datos %>% 
-  ggplot(aes(x = Edad, y = CHS_U_conversation_score))+
+  ggplot(aes(x = videogame_hours_week, y = CHS_U_general_component))+
   geom_point()+
   geom_smooth(method = "lm")
 
@@ -148,13 +144,26 @@ datos %>%
 
 
 datos %>%
-  filter(videogame_hours != "No juego") %>% 
-  lm(CHS_U_total_score ~ videogame_hours  , data = .) %>% 
+  lm(Edad ~ videogame_hours_week  , data = .) %>% 
+  summary()
+
+cor(datos$Edad, datos$videogame_hours_week)
+
+datos %>%
+  lm(CHS_U_general_component ~ videogame_hours_week + Edad + Sexo , data = .) %>% 
   summary()
 
 datos %>%
-  filter(videogame_hours != "No juego") %>% 
-  lm(CHS_U_total_score ~ videogame_hours *videogame_context_num  , data = .) %>% 
+  lm(CHS_U_academic_component ~ videogame_hours_week  , data = .) %>% 
+  summary()
+
+
+datos %>%
+  lm(CHS_U_conversation_component ~ videogame_hours_week + Edad , data = .) %>% 
+  summary()
+
+datos %>%
+  lm(CHS_U_conversation_component ~ videogame_hours_week *videogame_context_num  , data = .) %>% 
   summary()
 
 ```
@@ -168,7 +177,7 @@ datos %>%
   summary()
 
 datos %>%
-  lm(CHS_U_total_score ~ videogame_hours_week* videogame_context_num  , data = .) %>% 
+  lm(CHS_U_academic_score ~ videogame_hours_week* videogame_context_num  , data = .) %>% 
   summary()
 
 

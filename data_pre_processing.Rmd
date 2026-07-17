@@ -16,6 +16,7 @@ library(ggplot2)
 library(tidyr)
 library(readr)
 # library(dm)
+library(lavaan)
 source("helper/data_clean.R")
 
 ```
@@ -30,6 +31,7 @@ raw_data <- read_sheet("https://docs.google.com/spreadsheets/d/13whhEfm7JUvHhCvM
 
 
 
+
 ```
 
 
@@ -37,7 +39,7 @@ raw_data <- read_sheet("https://docs.google.com/spreadsheets/d/13whhEfm7JUvHhCvM
 
 ```{r}
 
-clean_data <- clean_colnames(raw_data)[, -c(43:44)]
+clean_data <- clean_colnames(raw_data)
 
 # colnames(clean_data)
 
@@ -92,6 +94,11 @@ processed_data = clean_data %>%
 
 
 ```
+
+
+
+
+
 
 
 # 4. Save data

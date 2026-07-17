@@ -16,6 +16,7 @@ library(ggplot2)
 library(tidyr)
 library(readr)
 library(stringr)
+library(psych)
 source("helper/data_clean.R")
 
 ```
@@ -53,7 +54,7 @@ Filter by criteria
 ```{r}
 
 lower_age = 19
-higher_age = 26
+higher_age = 29
 
 pre_processed_data %>% 
   summarise(lower_age = sum(Edad < lower_age),
@@ -100,7 +101,113 @@ table(age_filtered_dx_data$Provincia)
 age_filtered_dx_place_data <- age_filtered_dx_data %>% 
   filter(!is.na(Provincia))
 
-sort(age_filtered_dx_place_data$videogame_hours_week)
+```
+```{r}
+
+
+library(dplyr)
+library(tidyr)
+
+# 1. Seleccionar solo los ítems del cuestionario y quitar NAs
+datos_para_outliers <- datos_pre_cfa %>%
+  tibble::column_to_rownames("ID") %>% 
+  select(starts_with("CHS")) %>%
+  select(-contains("score"))
+  drop_na()
+
+# 2. Calcular la Distancia de Mahalanobis
+distancia_mahalanobis <- mahalanobis(
+  x = datos_para_outliers, 
+  center = colMeans(datos_para_outliers), 
+  cov = cov(datos_para_outliers)
+)
+
+# 3. Calcular la probabilidad (p-valor) de que ese patrón exista
+# Se usa una distribución Chi-cuadrado con grados de libertad = cantidad de ítems
+grados_libertad <- ncol(datos_para_outliers)
+p_valores <- pchisq(distancia_mahalanobis, df = grados_libertad, lower.tail = FALSE)
+
+# 4. Agregar los p-valores a tu dataset y filtrar los casos extremos (p < 0.001)
+casos_sospechosos <- datos_para_outliers %>%
+  mutate(
+    distancia = distancia_mahalanobis,
+    p_valor = p_valores
+  ) %>%
+  filter(p_valor < 0.001) %>%
+  arrange(p_valor)
+
+# Ver la tabla con los sujetos más raros de tu muestra
+# print(casos_sospechosos)
+
+
+
+library(dplyr)
+
+# Convertir a puntajes Z para ver a cuántos desvíos estándar está cada sujeto
+outliers_univariados <- datos_para_outliers %>%
+  mutate(across(everything(), ~ scale(.) %>% as.numeric() %>% abs())) %>%
+  tibble::rownames_to_column("ID") %>% 
+  pivot_longer(cols = -ID) %>% 
+  filter(value > 3) 
+
+
+outlier_subjects <- unique(outliers_univariados$ID)
+  
+
+```
+
+
+
+
+# Checking questionnaire with CFA
+
+```{r}
+
+datos_pre_cfa <- age_filtered_dx_place_data %>% 
+                filter(validation == TRUE) %>% 
+                filter(!is.na(Provincia)) %>% 
+                filter(videogame_hours != "No juego") %>% 
+                filter(videogame_hours_week < 90) %>% 
+  filter(!ID%in% outlier_subjects) %>% 
+  filter(Sexo != "Otro")
+
+#+ CHS_U_academic_4
+#+  CHS_U_conversation_20
+
+modelo_cfa <- '
+  CHS_U_academic_component =~ CHS_U_academic_1 + CHS_U_academic_2 + CHS_U_academic_3 
+  CHS_U_opposition_component =~ CHS_U_opposition_5 + CHS_U_opposition_6 + CHS_U_opposition_7 + CHS_U_opposition_8
+  CHS_U_empathetic_component =~ CHS_U_empathetic_9 + CHS_U_empathetic_10 + CHS_U_empathetic_11 + CHS_U_empathetic_12
+  CHS_U_affective_component =~ CHS_U_affective_13 + CHS_U_affective_14 + CHS_U_affective_15 + CHS_U_affective_16
+  CHS_U_conversation_component =~ CHS_U_conversation_17 + CHS_U_conversation_18 + CHS_U_conversation_19 
+  
+  
+  CHS_U_general_component =~ CHS_U_academic_component+CHS_U_opposition_component+CHS_U_empathetic_component+CHS_U_affective_component+CHS_U_conversation_component
+'
+
+ajuste <- cfa(modelo_cfa, data = datos_pre_cfa
+              )
+
+
+summary(ajuste, fit.measures = TRUE, standardized = TRUE)
+
+datos_finales <- cbind(datos_pre_cfa, lavPredict(ajuste))
+
+# indices_mod <- modindices(ajuste, sort = TRUE, maximum.number = 10)
+
+# indices_mod
+
+```
+
+```{r}
+
+age_filtered_dx_place_data %>% 
+  select(-contains("score")) %>% 
+  select(contains("opposition")) %>% 
+  # select(-CHS_U_academic_4) %>% 
+  alpha()
+
+
 
 ```
 
@@ -109,13 +216,12 @@ sort(age_filtered_dx_place_data$videogame_hours_week)
 
 ```{r}
 
-age_filtered_dx_data%>% 
-  filter(validation == TRUE) %>% 
-  filter(!is.na(Provincia)) %>% 
-  filter(videogame_hours != "No juego") %>% 
-  filter(videogame_hours_week < 90)
-
-write.csv("processed_data_TIF_moreyra.csv", row.names = F)
+datos_finales%>%
+  # filter(validation == TRUE) %>%
+  # filter(!is.na(Provincia)) %>%
+  # filter(videogame_hours != "No juego") %>%
+  # filter(videogame_hours_week < 90) %>%
+  write.csv("processed_data_TIF_moreyra.csv", row.names = F)
 
 ```
 

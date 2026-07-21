@@ -29,9 +29,6 @@ Raw data is loaded from googlesheets. The console will require you to authentica
 
 raw_data <- read_sheet("https://docs.google.com/spreadsheets/d/13whhEfm7JUvHhCvMjuu9FNT3_Us9ZQKBzG0Eo2qzhMI/edit?resourcekey=&gid=986904780#gid=986904780")
 
-
-
-
 ```
 
 
@@ -81,6 +78,7 @@ clean_data = clean_data %>%
 
 processed_data = clean_data %>% 
   rowwise() %>% 
+  select(-CHS_U_academic_4, -CHS_U_conversation_20) %>% 
   mutate(CHS_U_academic_score = sum(c_across(contains("CHS_U_academic")), na.rm = TRUE),
          CHS_U_opposition_score = sum(c_across(contains("CHS_U_opposition")), na.rm = TRUE),
          CHS_U_empathetic_score = sum(c_across(contains("CHS_U_empathetic")), na.rm = TRUE),

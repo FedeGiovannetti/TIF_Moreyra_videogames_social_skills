@@ -48,7 +48,12 @@ clean_data = clean_data %>%
   mutate(videogame_hours_week = parse_number(as.character(videogame_hours_week))) %>% 
   mutate(videogame_years_exp = parse_number(as.character(videogame_years_exp)))%>% 
   mutate(videogame_modality_num = parse_number(as.character(videogame_modality)))%>% 
-  mutate(videogame_context_num = parse_number(as.character(videogame_context)))
+  mutate(videogame_context_num = parse_number(as.character(videogame_context))) %>% 
+  mutate(videogame_hours_num = case_when(
+    videogame_hours == "No juego" ~ 0,
+    videogame_hours ==  "Menos de 1 hora" ~ 1,
+    videogame_hours == "Entre 1 y 3 horas" ~2,
+    videogame_hours == "Más de 3 horas" ~ 3))
 
 ```
 

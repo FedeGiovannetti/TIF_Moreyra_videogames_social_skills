@@ -113,7 +113,6 @@ datos_para_outliers <- datos_pre_cfa %>%
   tibble::column_to_rownames("ID") %>% 
   select(starts_with("CHS")) %>%
   select(-contains("score"))
-  drop_na()
 
 # 2. Calcular la Distancia de Mahalanobis
 distancia_mahalanobis <- mahalanobis(
